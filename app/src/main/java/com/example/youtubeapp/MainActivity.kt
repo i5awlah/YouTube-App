@@ -14,15 +14,26 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
+
+
+
 
 class MainActivity : AppCompatActivity() {
-
-    lateinit var binding: ActivityMainBinding
-    lateinit var rvVideos: RecyclerView
-    lateinit var videoAdapter: VideoAdapter
-
     lateinit var player: YouTubePlayer
-    val videos = arrayListOf(
+    val tracker = YouTubePlayerTracker()
+
+
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var rvVideos: RecyclerView
+    private lateinit var videoAdapter: VideoAdapter
+
+    var count = 0
+
+    lateinit var playList: ArrayList<String>
+
+
+    private val videos = arrayListOf(
         Video("d0E0RVA8gcU","An-Nas"),
         Video("G20YLHz4mEc","Al-Falag"),
         Video("WWDpLIIwE5A","Al-Ikhlas"),
@@ -38,13 +49,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         // Perform an internet connection check before trying to display a video
         if (checkConnection()) {
             Log.d("Main","Connect")
             setupYouTube()
         } else {
             Log.d("Main","Not Connected To The Internet")
+        }
+
+        binding.btnAdd.setOnClickListener {
+            addVideosToPlayList()
         }
     }
 
@@ -54,18 +68,20 @@ class MainActivity : AppCompatActivity() {
         youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(youTubePlayer: YouTubePlayer) {
                 player = youTubePlayer
-                val videoId = videos[0].id
-                youTubePlayer.loadVideo(videoId, 0f)
                 setupRecyclerView()
+                youTubePlayer.addListener(tracker)
             }
 
-            override fun onStateChange(
-                youTubePlayer: YouTubePlayer, state: PlayerConstants.PlayerState,
-            ) {
+            override fun onStateChange(youTubePlayer: YouTubePlayer, state: PlayerConstants.PlayerState) {
                 super.onStateChange(youTubePlayer, state)
-                Log.d("Main", "state: $state")
+                if (state.toString() == "ENDED" && tracker.videoId == playList[count-1] && count < playList.size) {
+                    player.loadVideo(playList[count], 0f)
+                    count++
+                }
             }
         })
+
+
     }
 
     private fun setupRecyclerView() {
@@ -79,5 +95,20 @@ class MainActivity : AppCompatActivity() {
         val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
         return activeNetwork?.isConnectedOrConnecting == true
+    }
+    private fun addVideosToPlayList() {
+        count = 0
+
+        playList = arrayListOf()
+        for (video in videos) {
+            if (video.checked) {
+                playList.add(video.id)
+            }
+        }
+        if (playList.size >= 1) {
+            playList.forEach { Log.d("Main", it) }
+            player.loadVideo(playList[0], 0f)
+            count++
+        }
     }
 }

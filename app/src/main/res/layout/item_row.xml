@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_gravity="center"
-        android:backgroundTint="#1c1c34"
+        android:backgroundTint="#808080"
         app:cornerRadius="20dp"
         android:textSize="20dp"
         android:text="Al-Ikhlas" />

@@ -1,5 +1,6 @@
 package com.example.youtubeapp
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +21,16 @@ class VideoAdapter(private val videos: ArrayList<Video>, val player: YouTubePlay
         holder.binding.apply {
             btnPlay.text = video.name
             btnPlay.setOnClickListener {
-                player.loadVideo(video.id, 0f)
+                //player.loadVideo(video.id, 0f)
+
+                if(video.checked) {
+                    btnPlay.setBackgroundColor(Color.GRAY)
+                    video.checked = false
+                } else {
+                    btnPlay.setBackgroundColor(Color.GREEN)
+                    video.checked = true
+                }
+
             }
         }
     }
