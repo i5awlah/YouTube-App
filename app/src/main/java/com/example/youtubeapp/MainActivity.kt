@@ -1,6 +1,7 @@
 package com.example.youtubeapp
 
 import android.content.Context
+import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +21,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTube
 
 
 class MainActivity : AppCompatActivity() {
+    lateinit var youTubePlayerView: YouTubePlayerView
     lateinit var player: YouTubePlayer
     val tracker = YouTubePlayerTracker()
 
@@ -28,9 +30,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rvVideos: RecyclerView
     private lateinit var videoAdapter: VideoAdapter
 
-    var count = 0
-
     lateinit var playList: ArrayList<String>
+
+    var currentID = 0
+    var timeStamp = 0f
 
 
     private val videos = arrayListOf(
@@ -63,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupYouTube() {
-        val youTubePlayerView = binding.youtubePlayerView
+        youTubePlayerView = binding.youtubePlayerView
         lifecycle.addObserver(youTubePlayerView)
         youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(youTubePlayer: YouTubePlayer) {
@@ -74,9 +77,9 @@ class MainActivity : AppCompatActivity() {
 
             override fun onStateChange(youTubePlayer: YouTubePlayer, state: PlayerConstants.PlayerState) {
                 super.onStateChange(youTubePlayer, state)
-                if (state.toString() == "ENDED" && tracker.videoId == playList[count-1] && count < playList.size) {
-                    player.loadVideo(playList[count], 0f)
-                    count++
+                if (state.toString() == "ENDED" && tracker.videoId == playList[currentID-1] && currentID < playList.size) {
+                    player.loadVideo(playList[currentID], timeStamp)
+                    currentID++
                 }
             }
         })
@@ -97,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         return activeNetwork?.isConnectedOrConnecting == true
     }
     private fun addVideosToPlayList() {
-        count = 0
+        currentID = 0
 
         playList = arrayListOf()
         for (video in videos) {
@@ -108,7 +111,32 @@ class MainActivity : AppCompatActivity() {
         if (playList.size >= 1) {
             playList.forEach { Log.d("Main", it) }
             player.loadVideo(playList[0], 0f)
-            count++
+            currentID++
         }
+    }
+
+    // Override onConfigurationChanged to track device rotation
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (newConfig.orientation === Configuration.ORIENTATION_LANDSCAPE) {
+            Log.d("Main","ORIENTATION_LANDSCAPE")
+            youTubePlayerView.enterFullScreen() // Set video to full screen when in landscape mode,
+        } else {
+            Log.d("Main","ORIENTATION_PORTRAIT") //  exit full screen in portrait mode
+            youTubePlayerView.exitFullScreen()
+        }
+    }
+
+    // Save video id and time stamp to allow continuous play after device rotation
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("currentID", currentID)
+        outState.putFloat("timeStamp", timeStamp)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        currentID = savedInstanceState.getInt("currentID", 0)
+        timeStamp = savedInstanceState.getFloat("timeStamp", 0f)
     }
 }
