@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_marginHorizontal="10dp"
+    android:layout_margin="20dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -13,7 +13,7 @@
         android:layout_gravity="center"
         android:backgroundTint="#808080"
         app:cornerRadius="20dp"
-        android:textSize="20dp"
+        android:textSize="18dp"
         android:text="Al-Ikhlas" />
 
 </LinearLayout>

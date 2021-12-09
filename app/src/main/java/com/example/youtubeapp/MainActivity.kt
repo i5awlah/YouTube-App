@@ -16,6 +16,10 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
+import androidx.recyclerview.widget.GridLayoutManager
+
+
+
 
 
 
@@ -91,7 +95,10 @@ class MainActivity : AppCompatActivity() {
         rvVideos = binding.rvVideo
         videoAdapter = VideoAdapter(videos, player)
         rvVideos.adapter = videoAdapter
-        rvVideos.layoutManager = LinearLayoutManager(this)
+        //rvVideos.layoutManager = LinearLayoutManager(this)
+
+        //  Grid View
+        rvVideos.layoutManager = GridLayoutManager(this, 2)
     }
 
     private fun checkConnection() : Boolean {
